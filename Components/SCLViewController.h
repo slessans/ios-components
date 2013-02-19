@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SCLTextFieldListViewController.h"
 
-@interface SCLViewController : UIViewController
+@interface SCLViewController : SCLTextFieldListViewController <SCLTextFieldListViewControllerDelegate>
 
 @end

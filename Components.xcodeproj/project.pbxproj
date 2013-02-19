@@ -18,6 +18,8 @@
 		9833AAFE16D40BA50081CEB9 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9833AAFD16D40BA50081CEB9 /* Default-568h@2x.png */; };
 		9833AB0116D40BA50081CEB9 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9833AAFF16D40BA50081CEB9 /* MainStoryboard.storyboard */; };
 		9833AB0416D40BA50081CEB9 /* SCLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9833AB0316D40BA50081CEB9 /* SCLViewController.m */; };
+		9833AB1216D40D120081CEB9 /* SCLTextFieldListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9833AB1116D40D120081CEB9 /* SCLTextFieldListViewController.m */; };
+		9833AB1516D420850081CEB9 /* SCLLayoutUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9833AB1416D420850081CEB9 /* SCLLayoutUtils.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +39,10 @@
 		9833AB0016D40BA50081CEB9 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
 		9833AB0216D40BA50081CEB9 /* SCLViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCLViewController.h; sourceTree = "<group>"; };
 		9833AB0316D40BA50081CEB9 /* SCLViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCLViewController.m; sourceTree = "<group>"; };
+		9833AB1016D40D120081CEB9 /* SCLTextFieldListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCLTextFieldListViewController.h; sourceTree = "<group>"; };
+		9833AB1116D40D120081CEB9 /* SCLTextFieldListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCLTextFieldListViewController.m; sourceTree = "<group>"; };
+		9833AB1316D420850081CEB9 /* SCLLayoutUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCLLayoutUtils.h; sourceTree = "<group>"; };
+		9833AB1416D420850081CEB9 /* SCLLayoutUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCLLayoutUtils.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,7 +94,11 @@
 				9833AAFF16D40BA50081CEB9 /* MainStoryboard.storyboard */,
 				9833AB0216D40BA50081CEB9 /* SCLViewController.h */,
 				9833AB0316D40BA50081CEB9 /* SCLViewController.m */,
+				9833AB1016D40D120081CEB9 /* SCLTextFieldListViewController.h */,
+				9833AB1116D40D120081CEB9 /* SCLTextFieldListViewController.m */,
 				9833AAEE16D40BA50081CEB9 /* Supporting Files */,
+				9833AB1316D420850081CEB9 /* SCLLayoutUtils.h */,
+				9833AB1416D420850081CEB9 /* SCLLayoutUtils.m */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -177,6 +187,8 @@
 				9833AAF416D40BA50081CEB9 /* main.m in Sources */,
 				9833AAF816D40BA50081CEB9 /* SCLAppDelegate.m in Sources */,
 				9833AB0416D40BA50081CEB9 /* SCLViewController.m in Sources */,
+				9833AB1216D40D120081CEB9 /* SCLTextFieldListViewController.m in Sources */,
+				9833AB1516D420850081CEB9 /* SCLLayoutUtils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
