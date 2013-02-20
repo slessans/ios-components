@@ -424,6 +424,10 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 - (void) closeKeyboardAction:(id)sender
 {
     [self.currentTextField resignFirstResponder];
+    if ( self.scrollView.contentSize.height < self.scrollView.frame.size.height ) {
+        [self.scrollView setContentOffset:CGPointMake(0, 0)
+                                 animated:YES];
+    }
 }
 
 - (void) keyboardPreviousAction:(id)sender
@@ -469,8 +473,7 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     self.currentTextField = textField;
     [self.prevNextControl setEnabled:!isFirst forSegmentAtIndex:0];
     [self.prevNextControl setEnabled:!isLast forSegmentAtIndex:1];
-        
-    
+
     if ( self.currentTextField ) {
         [self.scrollView setContentOffset:CGPointMake(0, MAX(self.currentTextField.frame.origin.y - [self topPadding], 0))
                                  animated:YES];
