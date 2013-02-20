@@ -424,7 +424,7 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 - (void) closeKeyboardAction:(id)sender
 {
     [self.currentTextField resignFirstResponder];
-    if ( self.scrollView.contentSize.height < self.scrollView.frame.size.height ) {
+    if ( self.scrollView.contentSize.height <= self.scrollView.frame.size.height ) {
         [self.scrollView setContentOffset:CGPointMake(0, 0)
                                  animated:YES];
     }
