@@ -29,15 +29,27 @@
 // key is how you will refer to the text field, value is the display text
 - (NSDictionary *) textFieldListViewControllerTextFields:(SCLTextFieldListViewController *)vc
 {
-    return @{
-             @"name": @"Name",
-             @"dob" : @"Date of Birth",
-             @"hometown" : @"Hometown",
-             @"rara" : @"Foo",
-             @"rar2" : @"Bar",
-             @"sdf" : @"Jah",
-             @"blah" : @"Soldja"
-             };
+    return @{@"fire" : @"first on the",
+             @"a" : @"sdfsdf",
+             @"foo" : @"var"};
+}
+
+- (UIView *) textFieldListViewControllerFooterView:(SCLTextFieldListViewController *)vc
+{
+    UIView * view = [[UIView alloc] initWithFrame:CGRectZero];
+    view.translatesAutoresizingMaskIntoConstraints = NO;
+    CONSTRAIN_SIZE_H(view, 100.0f);
+    view.backgroundColor = [UIColor redColor];
+    return nil;
+}
+
+- (UIView *) textFieldListViewControllerHeaderView:(SCLTextFieldListViewController *)vc
+{
+    UIView * view = [[UIView alloc] initWithFrame:CGRectZero];
+    view.translatesAutoresizingMaskIntoConstraints = NO;
+    CONSTRAIN_SIZE_H(view, 100.0f);
+    view.backgroundColor = [UIColor blueColor];
+    return view;
 }
 
 - (CGFloat) textFieldListViewControllerTopPadding:(SCLTextFieldListViewController *)vc

@@ -40,7 +40,8 @@
 // called after all text fields have been added to the view
 - (void) textFieldListViewControllerDidFinishLayingOutTextFields:(SCLTextFieldListViewController *)vc;
 
-// space between first text field and top of view
+// space between first text field and top of view, or between first field and top
+// bottom of header view if one exists
 - (CGFloat) textFieldListViewControllerTopPadding:(SCLTextFieldListViewController *)vc;
 
 // space between last text field and bottom of view
@@ -66,5 +67,11 @@
 
 - (void) textFieldListViewControllerWillReloadFields:(SCLTextFieldListViewController *)vc;
 - (void) textFieldListViewControllerDidReloadFields:(SCLTextFieldListViewController *)vc;
+
+// views will be added with constraints. the edges will be bound to the sides of the view
+// so be careful of the constraints you add on edges and widths. the views must
+// be fully constrained in terms of height.
+- (UIView *) textFieldListViewControllerHeaderView:(SCLTextFieldListViewController *)vc;
+- (UIView *) textFieldListViewControllerFooterView:(SCLTextFieldListViewController *)vc;
 
 @end

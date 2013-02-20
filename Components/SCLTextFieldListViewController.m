@@ -18,6 +18,8 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 
 @interface SCLTextFieldListViewController ()
 
+@property (nonatomic, strong) UIView * headerView;
+@property (nonatomic, strong) UIView * footerView;
 @property (nonatomic, strong) UITapGestureRecognizer * tapRecognizer;
 @property (nonatomic, strong) UISegmentedControl * prevNextControl;
 @property (nonatomic, weak) UITextField * currentTextField;
@@ -35,6 +37,7 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 - (void) setupSpacingMetrics;
 - (void) setupAccessoryViewBar;
 - (void) setupTapToExit;
+- (void) setupHeaderAndFooterViews;
 
 - (void) addTextFieldWithKey:(NSString *)key
                  displayText:(NSString *)displayText;
@@ -221,6 +224,65 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     [self reloadFields];
 }
 
+- (void) setupHeaderAndFooterViews
+{
+    if ( self.headerView ) [self.headerView removeFromSuperview];
+    if ( self.footerView ) [self.footerView removeFromSuperview];
+    self.headerView = nil;
+    self.footerView = nil;
+    
+    UIView * headerView = nil;
+    UIView * footerView = nil;
+    if ( [self.delegate respondsToSelector:@selector(textFieldListViewControllerHeaderView:)] ) {
+        headerView = [self.delegate textFieldListViewControllerHeaderView:self];
+    }
+    if ( [self.delegate respondsToSelector:@selector(textFieldListViewControllerFooterView:)] ) {
+        footerView = [self.delegate textFieldListViewControllerFooterView:self];
+    }
+    
+    // constrain header and footer views
+    if ( headerView ) {
+        [self.scrollView addSubview:headerView];
+        headerView.translatesAutoresizingMaskIntoConstraints = NO;
+        BIND_TOP_EDGE(self.scrollView, headerView);
+        BIND_EDGES_H(self.view, headerView);
+        [self.scrollView addConstraint:[NSLayoutConstraint constraintWithItem:headerView
+                                                                    attribute:NSLayoutAttributeBottom
+                                                                    relatedBy:NSLayoutRelationLessThanOrEqual
+                                                                       toItem:self.scrollView
+                                                                    attribute:NSLayoutAttributeBottom
+                                                                   multiplier:1.0f
+                                                                     constant:0.0f]];
+    }
+    
+    if ( footerView ) {
+        [self.scrollView addSubview:footerView];
+        footerView.translatesAutoresizingMaskIntoConstraints = NO;
+        BIND_BOTTOM_EDGE(self.scrollView, footerView);
+        BIND_EDGES_H(self.view, footerView);
+        [self.scrollView addConstraint:[NSLayoutConstraint constraintWithItem:footerView
+                                                                    attribute:NSLayoutAttributeTop
+                                                                    relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                                       toItem:self.scrollView
+                                                                    attribute:NSLayoutAttributeTop
+                                                                   multiplier:1.0f
+                                                                     constant:0.0f]];
+    }
+    
+    if ( headerView && footerView ) {
+        [self.scrollView addConstraint:[NSLayoutConstraint constraintWithItem:headerView
+                                                                    attribute:NSLayoutAttributeBottom
+                                                                    relatedBy:NSLayoutRelationLessThanOrEqual
+                                                                       toItem:footerView
+                                                                    attribute:NSLayoutAttributeTop
+                                                                   multiplier:1.0f
+                                                                     constant:0.0f]];
+    }
+    
+    self.headerView = headerView;
+    self.footerView = footerView;
+}
+
 - (void) reloadFields
 {
     if ( [self.delegate respondsToSelector:@selector(textFieldListViewControllerWillReloadFields:)] ) {
@@ -237,6 +299,7 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     
     // setup
     [self setupSpacingMetrics];
+    [self setupHeaderAndFooterViews];
     [self setupAccessoryViewBar];
     [self setupTapToExit];
     [self setupTextFields];
@@ -277,7 +340,11 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     // align bottom of last field to bottom of container
     UITextField * lastField = [self.textFields lastObject];
     if ( lastField ) {
-        BIND_BOTTOM_EDGE_PAD(self.scrollView, lastField, [self bottomPadding]);
+        if ( self.footerView ) {
+            BIND_SIBLING_VERTICAL_SPACING(self.scrollView, lastField, self.footerView, [self bottomPadding]);
+        } else {
+            BIND_BOTTOM_EDGE_PAD(self.scrollView, lastField, [self bottomPadding]);
+        }
     }
     
     // alert delegate
@@ -324,8 +391,14 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
         // bind to bottom of previous field
         BIND_SIBLING_VERTICAL_SPACING(self.scrollView, previousTextField, textField, [self verticalSpacing]);
     } else {
-        // no previous so align to top of view
-        BIND_TOP_EDGE_PAD(self.scrollView, textField, [self topPadding]);
+        // no previous so align to top of view or header if there is one
+        if ( self.headerView ) {
+            // align to bottom of header
+            BIND_SIBLING_VERTICAL_SPACING(self.scrollView, self.headerView, textField, [self topPadding]);
+        } else {
+            // align to top of container
+            BIND_TOP_EDGE_PAD(self.scrollView, textField, [self topPadding]);
+        }
     }
     
     self.textFieldDictionary[key] = textField;
