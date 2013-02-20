@@ -53,6 +53,7 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 - (void) keyboardPreviousAction:(id)sender;
 - (void) keyboardNextAction:(id)sender;
 - (void) prevNextControlAction:(id)sender;
+- (void) returnKeyAction:(id)sender;
 
 @end
 
@@ -377,6 +378,9 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     // control
     textField.inputAccessoryView = self.textFieldAccessoryViewBar;
     textField.delegate = self;
+    [textField addTarget:self
+                  action:@selector(returnKeyAction:)
+        forControlEvents:UIControlEventEditingDidEndOnExit];
     
     // constraints
     [self.scrollView addSubview:textField];
@@ -461,6 +465,15 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     }
 }
 
+- (void) returnKeyAction:(id)sender
+{
+    if ( sender == [self.textFields lastObject] ) {
+        [self closeKeyboardAction:sender];
+    } else {
+        [self keyboardNextAction:sender];
+    }
+}
+
 #pragma mark text field delegate
 - (void) textFieldDidBeginEditing:(UITextField *)textField
 {
@@ -473,6 +486,12 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     self.currentTextField = textField;
     [self.prevNextControl setEnabled:!isFirst forSegmentAtIndex:0];
     [self.prevNextControl setEnabled:!isLast forSegmentAtIndex:1];
+    
+    if ( isLast ) {
+        textField.returnKeyType = UIReturnKeyDone;
+    } else {
+        textField.returnKeyType = UIReturnKeyNext;
+    }
 
     if ( self.currentTextField ) {
         [self.scrollView setContentOffset:CGPointMake(0, MAX(self.currentTextField.frame.origin.y - [self topPadding], 0))
