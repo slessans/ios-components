@@ -74,4 +74,7 @@
 - (UIView *) textFieldListViewControllerHeaderView:(SCLTextFieldListViewController *)vc;
 - (UIView *) textFieldListViewControllerFooterView:(SCLTextFieldListViewController *)vc;
 
+- (UIReturnKeyType) textFieldListViewControllerFinalReturnKeyType:(SCLTextFieldListViewController *)vc;
+- (void) textFieldListViewControllerDidReturnOnLastField:(SCLTextFieldListViewController *)vc;
+
 @end

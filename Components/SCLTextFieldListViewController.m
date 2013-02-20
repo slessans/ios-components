@@ -346,6 +346,13 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
         } else {
             BIND_BOTTOM_EDGE_PAD(self.scrollView, lastField, [self bottomPadding]);
         }
+        
+        // make return key type according to delegate
+        UIReturnKeyType type = UIReturnKeyDone; // default
+        if ( [self.delegate respondsToSelector:@selector(textFieldListViewControllerFinalReturnKeyType:)] ) {
+            type = [self.delegate textFieldListViewControllerFinalReturnKeyType:self];
+        }
+        lastField.returnKeyType = type;
     }
     
     // alert delegate
@@ -377,6 +384,7 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     
     // control
     textField.inputAccessoryView = self.textFieldAccessoryViewBar;
+    textField.returnKeyType = UIReturnKeyNext;
     textField.delegate = self;
     [textField addTarget:self
                   action:@selector(returnKeyAction:)
@@ -469,6 +477,9 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 {
     if ( sender == [self.textFields lastObject] ) {
         [self closeKeyboardAction:sender];
+        if ( [self.delegate respondsToSelector:@selector(textFieldListViewControllerDidReturnOnLastField:)] ) {
+            [self.delegate textFieldListViewControllerDidReturnOnLastField:self];
+        }
     } else {
         [self keyboardNextAction:sender];
     }
@@ -486,12 +497,6 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     self.currentTextField = textField;
     [self.prevNextControl setEnabled:!isFirst forSegmentAtIndex:0];
     [self.prevNextControl setEnabled:!isLast forSegmentAtIndex:1];
-    
-    if ( isLast ) {
-        textField.returnKeyType = UIReturnKeyDone;
-    } else {
-        textField.returnKeyType = UIReturnKeyNext;
-    }
 
     if ( self.currentTextField ) {
         [self.scrollView setContentOffset:CGPointMake(0, MAX(self.currentTextField.frame.origin.y - [self topPadding], 0))

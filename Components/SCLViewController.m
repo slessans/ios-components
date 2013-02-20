@@ -72,4 +72,14 @@
     return 100.0f;
 }
 
+- (void) textFieldListViewControllerDidReturnOnLastField:(SCLTextFieldListViewController *)vc
+{
+    NSLog(@"Final return key pressed.");
+}
+
+- (UIReturnKeyType) textFieldListViewControllerFinalReturnKeyType:(SCLTextFieldListViewController *)vc
+{
+    return UIReturnKeyGo;
+}
+
 @end
