@@ -17,22 +17,11 @@
 
 @implementation SCLViewController
 
-- (id) initWithCoder:(NSCoder *)aDecoder
+- (void) viewDidLoad
 {
-    self = [super initWithCoder:aDecoder];
-    if ( self ) {
-        self.delegate = self;
-    }
-    return self;
-}
-
-- (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if ( self ) {
-        self.delegate = self;
-    }
-    return self;
+    [super viewDidLoad];
+    self.delegate = self;
+    [self reloadFields];
 }
 
 #pragma mark text field delegate
