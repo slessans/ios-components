@@ -11,7 +11,7 @@
 @protocol SCLTextFieldListViewControllerDelegate;
 
 // if not instantiated with nib, will create its own view
-@interface SCLTextFieldListViewController : UIViewController
+@interface SCLTextFieldListViewController : UIViewController <UITextFieldDelegate>
 
 @property (nonatomic, weak, readonly) UIScrollView * scrollView;
 @property (nonatomic, weak) IBOutlet id<SCLTextFieldListViewControllerDelegate> delegate;
@@ -54,6 +54,10 @@
 - (BOOL) textFieldListViewControllerDoesShowAccessoryBarView:(SCLTextFieldListViewController *)vc;
 - (BOOL) textFieldListViewControllerAccessoryBarViewDoesShowPrevNext:(SCLTextFieldListViewController *)vc;
 - (BOOL) textFieldListViewControllerAccessoryBarViewDoesShowClose:(SCLTextFieldListViewController *)vc;
+
+// the bar's frame will be auto set after and the items will be cleared so pretty much just
+// if you want to style it or use some sort of subclass
+- (UIToolbar *) textFieldListViewControllerAccessoryViewBar:(SCLTextFieldListViewController *)vc;
 
 // target and selector will be auto set after this method returns
 - (UIBarButtonItem *) textFieldListViewControllerCloseButtonItem:(SCLTextFieldListViewController *)vc;
