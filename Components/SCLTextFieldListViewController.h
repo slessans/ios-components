@@ -16,6 +16,8 @@
 @property (nonatomic, weak, readonly) UIScrollView * scrollView;
 @property (nonatomic, weak) IBOutlet id<SCLTextFieldListViewControllerDelegate> delegate;
 
+- (void) reloadFields;
+
 @end
 
 @protocol SCLTextFieldListViewControllerDelegate <NSObject>
@@ -61,5 +63,8 @@
 
 // target and selector will be auto set after this method returns
 - (UIBarButtonItem *) textFieldListViewControllerCloseButtonItem:(SCLTextFieldListViewController *)vc;
+
+- (void) textFieldListViewControllerWillReloadFields:(SCLTextFieldListViewController *)vc;
+- (void) textFieldListViewControllerDidReloadFields:(SCLTextFieldListViewController *)vc;
 
 @end

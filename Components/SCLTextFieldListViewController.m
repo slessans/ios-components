@@ -18,6 +18,7 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 
 @interface SCLTextFieldListViewController ()
 
+@property (nonatomic, strong) UITapGestureRecognizer * tapRecognizer;
 @property (nonatomic, strong) UISegmentedControl * prevNextControl;
 @property (nonatomic, weak) UITextField * currentTextField;
 @property (nonatomic, weak) UIScrollView * scrollView;
@@ -34,7 +35,6 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 - (void) setupSpacingMetrics;
 - (void) setupAccessoryViewBar;
 - (void) setupTapToExit;
-- (void) validate;
 
 - (void) addTextFieldWithKey:(NSString *)key
                  displayText:(NSString *)displayText;
@@ -101,16 +101,6 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     return button;
 }
 
-- (void) validate
-{
-    if ( ! self.delegate ) {
-        NSString * reason = [NSString stringWithFormat:@"In %@ no delegate is set when viewDidLoad is called.", self];
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:reason
-                                     userInfo:nil];
-    }
-}
-
 - (void) setupSpacingMetrics
 {
     _topPadding = TopPaddingDefault;
@@ -138,15 +128,21 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 
 - (void) setupTapToExit
 {
+    if ( self.tapRecognizer ) {
+        [self.view removeGestureRecognizer:self.tapRecognizer];
+        self.tapRecognizer = nil;
+    }
+    
     if ( ! [self shouldCloseKeyboardOnTap] ) return;
-    UITapGestureRecognizer * tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
-                                                                                     action:@selector(closeKeyboardAction:)];
-    tapRecognizer.cancelsTouchesInView = NO;
-    [self.view addGestureRecognizer:tapRecognizer];
+    self.tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                 action:@selector(closeKeyboardAction:)];
+    self.tapRecognizer.cancelsTouchesInView = NO;
+    [self.view addGestureRecognizer:self.tapRecognizer];
 }
 
 - (void) setupScrollView
 {
+    if ( self.scrollView ) return;
     UIScrollView * scrollView = [[UIScrollView alloc] initWithFrame:CGRectZero];
     [self.view addSubview:scrollView];
     scrollView.translatesAutoresizingMaskIntoConstraints = NO;    
@@ -221,16 +217,33 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 - (void) viewDidLoad
 {
     [super viewDidLoad];
+    [self setupScrollView];
+    [self reloadFields];
+}
+
+- (void) reloadFields
+{
+    if ( [self.delegate respondsToSelector:@selector(textFieldListViewControllerWillReloadFields:)] ) {
+        [self.delegate textFieldListViewControllerWillReloadFields:self];
+    }
     
-    // if not valid will throw exception
-    [self validate];
+    // reset
+    self.currentTextField = nil;
+    self.textFieldDictionary = nil;
+    
+    // remove fields
+    for ( UITextField * textField in self.textFields ) [textField removeFromSuperview];
+    self.textFields = nil;
     
     // setup
     [self setupSpacingMetrics];
-    [self setupScrollView];
     [self setupAccessoryViewBar];
     [self setupTapToExit];
     [self setupTextFields];
+    
+    if ( [self.delegate respondsToSelector:@selector(textFieldListViewControllerDidReloadFields:)] ) {
+        [self.delegate textFieldListViewControllerDidReloadFields:self];
+    }
 }
 
 - (void) setupTextFields
