@@ -32,12 +32,14 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 - (void) setupTextFields;
 - (void) setupScrollView;
 - (void) setupSpacingMetrics;
+- (void) setupAccessoryViewBar;
+- (void) setupTapToExit;
 - (void) validate;
+
 - (void) addTextFieldWithKey:(NSString *)key
                  displayText:(NSString *)displayText;
-- (UITextField *) makeNewTextField;
 
-- (void) setupAccessoryViewBar;
+- (UITextField *) makeNewTextField;
 - (BOOL) shouldCloseKeyboardOnTap;
 - (BOOL) shouldShowAccessoryBarView;
 - (BOOL) accessoryBarViewShouldShowPreviousAndNext;
@@ -134,6 +136,15 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     
 }
 
+- (void) setupTapToExit
+{
+    if ( ! [self shouldCloseKeyboardOnTap] ) return;
+    UITapGestureRecognizer * tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                     action:@selector(closeKeyboardAction:)];
+    tapRecognizer.cancelsTouchesInView = NO;
+    [self.view addGestureRecognizer:tapRecognizer];
+}
+
 - (void) setupScrollView
 {
     UIScrollView * scrollView = [[UIScrollView alloc] initWithFrame:CGRectZero];
@@ -217,7 +228,8 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     // setup
     [self setupSpacingMetrics];
     [self setupScrollView];
-    [self setupAccessoryViewBar];    
+    [self setupAccessoryViewBar];
+    [self setupTapToExit];
     [self setupTextFields];
 }
 
