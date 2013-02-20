@@ -375,6 +375,10 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 - (void) textFieldDidBeginEditing:(UITextField *)textField
 {
     self.currentTextField = textField;
+    if ( self.currentTextField ) {
+        [self.scrollView setContentOffset:CGPointMake(0, MAX(self.currentTextField.frame.origin.y - [self topPadding], 0))
+                                 animated:YES];
+    }
 }
 
 - (void) textFieldDidEndEditing:(UITextField *)textField
