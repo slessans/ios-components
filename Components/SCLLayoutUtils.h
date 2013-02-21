@@ -81,8 +81,21 @@
 // setting constraints between siblings
 #define BIND_SIBLING_VERTICAL_SPACING(PARENT, TOP_VIEW, BOTTOM_VIEW, SPACING) [PARENT addConstraint:[NSLayoutConstraint constraintWithItem:BOTTOM_VIEW attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:TOP_VIEW attribute:NSLayoutAttributeBottom multiplier:1.0f constant:SPACING]]
 
+#define BIND_SIBLING_HORIZONTAL_SPACING(PARENT, LEFT_VIEW, RIGHT_VIEW, SPACING) [PARENT addConstraint:[NSLayoutConstraint constraintWithItem:LEFT_VIEW attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:RIGHT_VIEW attribute:NSLayoutAttributeLeft multiplier:1.0f constant:-SPACING]];
+
 #define SCLNSNullForNil(obj) ((obj == nil) ? [NSNull null] : obj)
 
 @interface SCLLayoutUtils : NSObject
 
 @end
+
+
+
+
+
+
+
+
+
+
+
