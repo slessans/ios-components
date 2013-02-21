@@ -55,6 +55,8 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 - (void) prevNextControlAction:(id)sender;
 - (void) returnKeyAction:(id)sender;
 
+- (void) closeKeyboardAction:(id)sender isLastField:(BOOL)isLast;
+
 @end
 
 @implementation SCLTextFieldListViewController
@@ -433,13 +435,20 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 }
 
 #pragma mark actions
-- (void) closeKeyboardAction:(id)sender
+- (void) closeKeyboardAction:(id)sender isLastField:(BOOL)isLast
 {
     [self.currentTextField resignFirstResponder];
-    if ( self.scrollView.contentSize.height <= self.scrollView.frame.size.height ) {
-        [self.scrollView setContentOffset:CGPointMake(0, 0)
+    
+    const CGFloat maxScroll = MAX(self.scrollView.contentSize.height - self.scrollView.frame.size.height, 0);
+    if ( self.scrollView.contentOffset.y > maxScroll ) {
+        [self.scrollView setContentOffset:CGPointMake(0, maxScroll)
                                  animated:YES];
     }
+}
+
+- (void) closeKeyboardAction:(id)sender
+{
+    [self closeKeyboardAction:sender isLastField:NO];
 }
 
 - (void) keyboardPreviousAction:(id)sender
@@ -476,7 +485,7 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 - (void) returnKeyAction:(id)sender
 {
     if ( sender == [self.textFields lastObject] ) {
-        [self closeKeyboardAction:sender];
+        [self closeKeyboardAction:sender isLastField:YES];
         if ( [self.delegate respondsToSelector:@selector(textFieldListViewControllerDidReturnOnLastField:)] ) {
             [self.delegate textFieldListViewControllerDidReturnOnLastField:self];
         }

@@ -31,7 +31,10 @@
 {
     return @{@"fire" : @"first on the",
              @"a" : @"sdfsdf",
-             @"foo" : @"var"};
+             @"foo" : @"var",
+             @"fi2re" : @"firstsdf  on the",
+             @"a1" : @"sdfsdfsdf ",
+             @"foo1" : @"var ff"};
 }
 
 - (UIView *) textFieldListViewControllerFooterView:(SCLTextFieldListViewController *)vc
@@ -80,6 +83,11 @@
 - (UIReturnKeyType) textFieldListViewControllerFinalReturnKeyType:(SCLTextFieldListViewController *)vc
 {
     return UIReturnKeyGo;
+}
+
+- (void) textFieldListViewController:(SCLTextFieldListViewController *)vc prepareTextField:(UITextField *)textField key:(NSString *)key displayName:(NSString *)displayName
+{
+    textField.placeholder = displayName;
 }
 
 @end
