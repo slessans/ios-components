@@ -37,6 +37,17 @@
              @"foo1" : @"var ff"};
 }
 
+- (NSArray *) textFieldListViewControllerTextFieldOrder:(SCLTextFieldListViewController *)vc
+{
+    return @[@"fire", @"foo", @"a1"];
+}
+
+- (void) textFieldListViewControllerDidFinishLayingOutTextFields:(SCLTextFieldListViewController *)vc
+{
+    [vc setStringValue:@"Holita" forTextFieldWithKey:@"foo"];
+    NSLog(@"%@", [vc stringValueForTextFieldWithKey:@"foo"]);
+}
+
 - (UIView *) textFieldListViewControllerFooterView:(SCLTextFieldListViewController *)vc
 {
     UIView * view = [[UIView alloc] initWithFrame:CGRectZero];

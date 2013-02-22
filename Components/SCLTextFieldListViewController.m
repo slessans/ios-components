@@ -93,6 +93,16 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     return YES;
 }
 
+- (NSString *) stringValueForTextFieldWithKey:(NSString *)key
+{
+    return ((UITextField *)self.textFieldDictionary[key]).text;
+}
+
+- (void) setStringValue:(NSString *)value forTextFieldWithKey:(NSString *)key
+{
+    ((UITextField *)self.textFieldDictionary[key]).text = value;
+}
+
 - (UIBarButtonItem *) closeButtonItemForAccessoryView
 {
     UIBarButtonItem * button = nil;

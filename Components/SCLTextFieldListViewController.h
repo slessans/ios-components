@@ -16,6 +16,9 @@
 @property (nonatomic, weak, readonly) UIScrollView * scrollView;
 @property (nonatomic, weak) IBOutlet id<SCLTextFieldListViewControllerDelegate> delegate;
 
+- (NSString *) stringValueForTextFieldWithKey:(NSString *)key;
+- (void) setStringValue:(NSString *)value forTextFieldWithKey:(NSString *)key;
+
 - (void) reloadFields;
 
 @end
