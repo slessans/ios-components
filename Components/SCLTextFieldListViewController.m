@@ -439,8 +439,17 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 
 - (UITextField *) makeNewTextField
 {
-    UITextField * textField = [[UITextField alloc] initWithFrame:CGRectZero];
-    textField.borderStyle = UITextBorderStyleRoundedRect;
+    UITextField * textField = nil;
+    
+    if ( [self.delegate respondsToSelector:@selector(textFieldListViewControllerMakeTextField:)] ) {
+        textField = [self.delegate textFieldListViewControllerMakeTextField:self];
+    }
+    
+    if ( ! textField ) {
+        textField = [[UITextField alloc] initWithFrame:CGRectZero];
+        textField.borderStyle = UITextBorderStyleRoundedRect;
+    }
+    
     return textField;
 }
 

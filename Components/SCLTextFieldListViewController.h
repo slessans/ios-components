@@ -30,6 +30,9 @@
 - (NSDictionary *) textFieldListViewControllerTextFields:(SCLTextFieldListViewController *)vc;
 
 @optional
+// creates a new text field
+- (UITextField *) textFieldListViewControllerMakeTextField:(SCLTextFieldListViewController *)vc;
+
 // array of keys in order of test fields. if not all are specified, the unspecified fields
 // will be places after the ordered fields in an unspecified order
 - (NSArray *) textFieldListViewControllerTextFieldOrder:(SCLTextFieldListViewController *)vc;
