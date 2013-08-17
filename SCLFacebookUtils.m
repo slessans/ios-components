@@ -10,6 +10,20 @@
 #import "SCLFacebookUtils.h"
 #import "SCLThreadingUtils.h"
 
+NSString * const SCLFacebookUtilsErrorDomain = @"com.scottlessans.facebookutils";
+
+@interface SCLFacebookUserInfo()
+
+@property (nonatomic, strong) id<FBGraphUser> user;
+
+@end
+
+@interface SCLFacebookUtils ()
+
+@property (nonatomic, strong) SCLFacebookUserInfo * currentUserInfo;
+
+@end
+
 @implementation SCLFacebookUtils
 
 + (instancetype) sharedInstance
@@ -22,11 +36,15 @@
     return sharedInstance;
 }
 
+- (FBSession *) session
+{
+    return [FBSession activeSession];
+}
+
 - (id) init
 {
     self = [super init];
     if ( self ) {
-        self.session = [[FBSession alloc] init];
     }
     return self;
 }
@@ -41,6 +59,8 @@
         });
         return;
     }
+    
+    self.currentUserInfo = nil;
     
     // if the session isn't open, let's open it now and present the login UX to the user
     [self.session openWithCompletionHandler:^(FBSession *session,
@@ -79,7 +99,6 @@
 - (void) logoutFacebookUser
 {
     [self.session closeAndClearTokenInformation];
-    self.session = [[FBSession alloc] init];
 }
 
 // FBSample logic
@@ -131,4 +150,100 @@
     [self.session close];
 }
 
+- (void) refreshFacebookUserInfoInBackgroundWithBlock:(SCLFacebookUserInfoCallback)block
+{
+    
+    if ( ! self.session || ! self.session.isOpen )
+    {
+        SCLSafelyExecuteOnMainThread(^{
+            NSDictionary * userInfo = @{NSLocalizedDescriptionKey: @"Facebook session object is not existent or not open."};
+            NSError * error = [NSError errorWithDomain:SCLFacebookUtilsErrorDomain
+                                                  code:SCLFacebookUtilsErrorCodeInvalidSession
+                                              userInfo:userInfo];
+            block(nil, error);
+        });
+        return;
+    }
+    
+    [FBRequestConnection startForMeWithCompletionHandler:
+     ^(FBRequestConnection *connection, id<FBGraphUser> user, NSError *error)
+     {
+         SCLSafelyExecuteOnMainThread(^{
+             
+             if ( ! error && user )
+             {
+                 if ( ! self.currentUserInfo ) {
+                     self.currentUserInfo = [[SCLFacebookUserInfo alloc] init];
+                 }
+                 self.currentUserInfo.user = user;
+             }
+             else
+             {
+                 self.currentUserInfo = nil;
+             }
+             
+             if ( block != NULL )
+             {
+                 block(self.currentUserInfo, error);
+             }
+             
+         });
+     }];
+    
+}
+
 @end
+
+
+@implementation SCLFacebookUserInfo
+
+- (NSString *) facebookAccessToken
+{
+    return [[[[SCLFacebookUtils sharedInstance] session] accessTokenData] accessToken];
+}
+
+- (NSString *) facebookUserId
+{
+    return self.user.id;
+}
+
+- (NSString *) name
+{
+    return self.user.name;
+}
+
+- (NSString *) firstName
+{
+    return self.user.first_name;
+}
+
+- (NSString *) middleName
+{
+    return self.user.middle_name;
+}
+
+- (NSString *) lastName
+{
+    return self.user.last_name;
+}
+
+- (NSString *) link
+{
+    return self.user.link;
+}
+
+- (NSString *) username
+{
+    return self.user.username;
+}
+
+- (NSString *) birthday
+{
+    return self.user.birthday;
+}
+
+
+@end
+
+
+
