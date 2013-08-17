@@ -64,8 +64,11 @@
 // set size relative
 #define BIND_SINGLE_ATTR(PARENT, VIEW, ATTR, MULT, CONST) [PARENT addConstraint:[NSLayoutConstraint constraintWithItem:VIEW attribute:ATTR relatedBy:NSLayoutRelationEqual toItem:PARENT attribute:ATTR multiplier:MULT constant:CONST]]
 
-#define BIND_WIDTH(PARENT, VIEW, MULT) {BIND_SINGLE_ATTR(PARENT, VIEW, NSLayoutAttributeWidth, MULT, 0.0f);}
-#define BIND_HEIGHT(PARENT, VIEW, MULT) {BIND_SINGLE_ATTR(PARENT, VIEW, NSLayoutAttributeHeight, MULT, 0.0f);}
+#define BIND_WIDTH_PAD(PARENT, VIEW, MULT, CONST) {BIND_SINGLE_ATTR(PARENT, VIEW, NSLayoutAttributeWidth, MULT, CONST);}
+#define BIND_HEIGHT_PAD(PARENT, VIEW, MULT, CONST) {BIND_SINGLE_ATTR(PARENT, VIEW, NSLayoutAttributeHeight, MULT, CONST);}
+
+#define BIND_WIDTH(PARENT, VIEW, MULT) {BIND_WIDTH_PAD(PARENT, VIEW, MULT, 0.0f);}
+#define BIND_HEIGHT(PARENT, VIEW, MULT) {BIND_HEIGHT_PAD(PARENT, VIEW, MULT, 0.0f);}
 
 // Set Size absolute
 #define CONSTRAIN_SINGLE_ATTR(VIEW, ATTR, CONST) [VIEW addConstraint:[NSLayoutConstraint constraintWithItem:VIEW attribute:ATTR relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0f constant:CONST]]
