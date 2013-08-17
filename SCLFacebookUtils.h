@@ -33,6 +33,7 @@ typedef void (^SCLFacebookUserInfoCallback)(SCLFacebookUserInfo * info, NSError 
 
 @property (nonatomic, readonly) FBSession * session;
 @property (nonatomic, readonly) SCLFacebookUserInfo * currentUserInfo;
+@property (nonatomic, readonly) NSString * currentUserFacebookAccessToken;
 
 #pragma mark constructing
 + (instancetype) sharedInstance;
@@ -60,7 +61,6 @@ typedef void (^SCLFacebookUserInfoCallback)(SCLFacebookUserInfo * info, NSError 
 
 @interface SCLFacebookUserInfo : NSObject
 
-@property (nonatomic, readonly) NSString * facebookAccessToken;
 @property (nonatomic, readonly) NSString * facebookUserId;
 @property (nonatomic, readonly) NSString * name;
 @property (nonatomic, readonly) NSString * firstName;

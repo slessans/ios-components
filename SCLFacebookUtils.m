@@ -20,6 +20,7 @@ NSString * const SCLFacebookUtilsErrorDomain = @"com.scottlessans.facebookutils"
 
 @interface SCLFacebookUtils ()
 
+@property (nonatomic, strong) FBSession * session;
 @property (nonatomic, strong) SCLFacebookUserInfo * currentUserInfo;
 
 @end
@@ -36,9 +37,20 @@ NSString * const SCLFacebookUtilsErrorDomain = @"com.scottlessans.facebookutils"
     return sharedInstance;
 }
 
+- (NSString *) currentUserFacebookAccessToken
+{
+    return self.session.accessTokenData.accessToken;
+}
+
 - (FBSession *) session
 {
     return [FBSession activeSession];
+}
+
+- (void) setSession:(FBSession *)session
+{
+    if ( session == self.session ) return;
+    [FBSession setActiveSession:session];
 }
 
 - (id) init
@@ -61,6 +73,11 @@ NSString * const SCLFacebookUtilsErrorDomain = @"com.scottlessans.facebookutils"
     }
     
     self.currentUserInfo = nil;
+    
+    if ( FB_ISSESSIONSTATETERMINAL(self.session.state) )
+    {
+        self.session = [[FBSession alloc] init];
+    }
     
     // if the session isn't open, let's open it now and present the login UX to the user
     [self.session openWithCompletionHandler:^(FBSession *session,
@@ -196,11 +213,6 @@ NSString * const SCLFacebookUtilsErrorDomain = @"com.scottlessans.facebookutils"
 
 
 @implementation SCLFacebookUserInfo
-
-- (NSString *) facebookAccessToken
-{
-    return [[[[SCLFacebookUtils sharedInstance] session] accessTokenData] accessToken];
-}
 
 - (NSString *) facebookUserId
 {
