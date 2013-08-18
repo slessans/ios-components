@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SCLFacebookUserInfo.h"
 
 extern NSString * const SCLFacebookUtilsErrorDomain;
 
@@ -24,8 +25,6 @@ typedef NS_ENUM(NSInteger, SCLFacebookUtilsLoginState) {
 };
 
 typedef void (^SCLFacebookUtilsLoginBlock)(SCLFacebookUtils * utils, SCLFacebookUtilsLoginState result, NSError * error);
-
-@class SCLFacebookUserInfo;
 
 typedef void (^SCLFacebookUserInfoCallback)(SCLFacebookUserInfo * info, NSError * error);
 
@@ -55,20 +54,6 @@ typedef void (^SCLFacebookUserInfoCallback)(SCLFacebookUserInfo * info, NSError 
 
 #pragma mark user info
 - (void) refreshFacebookUserInfoInBackgroundWithBlock:(SCLFacebookUserInfoCallback)block;
-
-@end
-
-
-@interface SCLFacebookUserInfo : NSObject
-
-@property (nonatomic, readonly) NSString * facebookUserId;
-@property (nonatomic, readonly) NSString * name;
-@property (nonatomic, readonly) NSString * firstName;
-@property (nonatomic, readonly) NSString * middleName;
-@property (nonatomic, readonly) NSString * lastName;
-@property (nonatomic, readonly) NSString * link;
-@property (nonatomic, readonly) NSString * username;
-@property (nonatomic, readonly) NSString * birthday;
 
 @end
 

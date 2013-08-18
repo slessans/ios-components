@@ -9,14 +9,9 @@
 #import <FacebookSDK/FacebookSDK.h>
 #import "SCLFacebookUtils.h"
 #import "SCLThreadingUtils.h"
+#import "SCLFacebookUserInfo+Protected.h"
 
 NSString * const SCLFacebookUtilsErrorDomain = @"com.scottlessans.facebookutils";
-
-@interface SCLFacebookUserInfo()
-
-@property (nonatomic, strong) id<FBGraphUser> user;
-
-@end
 
 @interface SCLFacebookUtils ()
 
@@ -182,80 +177,65 @@ NSString * const SCLFacebookUtilsErrorDomain = @"com.scottlessans.facebookutils"
         return;
     }
     
-    [FBRequestConnection startForMeWithCompletionHandler:
-     ^(FBRequestConnection *connection, id<FBGraphUser> user, NSError *error)
-     {
-         SCLSafelyExecuteOnMainThread(^{
-             
-             if ( ! error && user )
-             {
-                 if ( ! self.currentUserInfo ) {
-                     self.currentUserInfo = [[SCLFacebookUserInfo alloc] init];
-                 }
-                 self.currentUserInfo.user = user;
+    // Create request for user's Facebook data
+    NSString * requestPath =
+    @"me/?fields=id,username,first_name,middle_name,last_name,email,"
+    @"hometown,location,gender,birthday,relationship_status,picture";
+    
+    // Send request to Facebook
+    FBRequest * request = [FBRequest requestForGraphPath:requestPath];
+    [request startWithCompletionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
+        
+        SCLFacebookUserInfo * info = nil;
+        
+        if (!error) {
+            NSDictionary *userData = (NSDictionary *)result; // The result is a dictionary
+            
+            /*details.gender = MQUserGenderUnknown;
+             NSString * genderString = [[userData[@"gender"] stringByTrimmingCharactersInSet:
+             [NSCharacterSet whitespaceAndNewlineCharacterSet]] uppercaseString];
+             if ( [genderString isEqualToString:@"male"] ) {
+             details.gender = MQUserGenderMale;
+             } else if ( [genderString isEqualToString:@"female"] ) {
+             details.gender = MQUserGenderFemale;
              }
-             else
-             {
-                 self.currentUserInfo = nil;
-             }
-             
-             if ( block != NULL )
-             {
-                 block(self.currentUserInfo, error);
-             }
-             
-         });
-     }];
+             // details.relationshipStatus = userData[@"relationship_status"];
+             */
+            
+            info = [[SCLFacebookUserInfo alloc] init];
+            
+            NSString * birthdayString = userData[@"birthday"];
+            if ( birthdayString ) {
+                NSDateFormatter * formatter = [[NSDateFormatter alloc] init];
+                [formatter setDateFormat:@"MM/dd/yyyy"];
+                info.birthday = [formatter dateFromString:birthdayString];
+            }
+            
+            info.facebookUserId = userData[@"id"];
+            info.username = userData[@"username"];
+            info.link = userData[@"link"];
+            info.email = userData[@"email"];            
+            info.firstName = userData[@"first_name"];
+            info.middleName = userData[@"middle_name"];
+            info.lastName = userData[@"last_name"];
+            info.location = userData[@"location"][@"name"];
+            info.hometown = userData[@"hometown"][@"name"];
+            info.profilePictureUrl = [NSURL URLWithString:userData[@"picture"][@"data"][@"url"]];
+            
+        }
+        
+        SCLSafelyExecuteOnMainThread(^{
+            if ( info ) {
+                self.currentUserInfo = info;
+            }
+            if ( block != NULL ) {
+                block(info, error);
+            }
+        });
+    }];
     
 }
 
 @end
-
-
-@implementation SCLFacebookUserInfo
-
-- (NSString *) facebookUserId
-{
-    return self.user.id;
-}
-
-- (NSString *) name
-{
-    return self.user.name;
-}
-
-- (NSString *) firstName
-{
-    return self.user.first_name;
-}
-
-- (NSString *) middleName
-{
-    return self.user.middle_name;
-}
-
-- (NSString *) lastName
-{
-    return self.user.last_name;
-}
-
-- (NSString *) link
-{
-    return self.user.link;
-}
-
-- (NSString *) username
-{
-    return self.user.username;
-}
-
-- (NSString *) birthday
-{
-    return self.user.birthday;
-}
-
-
-@end
-
 
 
