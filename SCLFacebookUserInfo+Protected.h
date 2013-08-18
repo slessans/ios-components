@@ -11,7 +11,6 @@
 @interface SCLFacebookUserInfo (Protected)
 
 @property (nonatomic, strong) NSString * facebookUserId;
-@property (nonatomic, strong) NSURL * profilePictureUrl;
 @property (nonatomic, strong) NSString * location;
 @property (nonatomic, strong) NSString * hometown;
 @property (nonatomic, strong) NSString * email;

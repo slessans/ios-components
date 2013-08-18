@@ -10,8 +10,28 @@
 #import "SCLFacebookUtils.h"
 #import "SCLThreadingUtils.h"
 #import "SCLFacebookUserInfo+Protected.h"
+#import "SCLNetworkingUtils.h"
 
 NSString * const SCLFacebookUtilsErrorDomain = @"com.scottlessans.facebookutils";
+
+NSString * SCLFacebookUtilsStringFromPictureSize(SCLFacebookUtilsPictureSize pictureSize)
+{
+    switch (pictureSize) {
+        case SCLFacebookUtilsPictureSizeSquare:
+            return @"square";
+            break;
+        case SCLFacebookUtilsPictureSizeSmall:
+            return @"small";
+            break;
+        case SCLFacebookUtilsPictureSizeNormal:
+            return @"normal";
+            break;
+        case SCLFacebookUtilsPictureSizeLarge:
+            return @"large";
+            break;
+    }
+    return nil;
+}
 
 @interface SCLFacebookUtils ()
 
@@ -40,6 +60,36 @@ NSString * const SCLFacebookUtilsErrorDomain = @"com.scottlessans.facebookutils"
 - (FBSession *) session
 {
     return [FBSession activeSession];
+}
+
+- (NSURL *) profilePictureUrlForUserWithId:(NSString *)userId
+{
+    return [self profilePictureUrlForUserWithId:userId
+                                           size:SCLFacebookUtilsPictureSizeDefault];
+}
+
+- (NSURL *) profilePictureUrlForUserWithId:(NSString *)userId
+                                      size:(SCLFacebookUtilsPictureSize)size
+{
+    if ( ! userId || [userId isEqualToString:@""] ) {
+        return nil;
+    }
+    
+    NSMutableDictionary * dictionary = [[NSMutableDictionary alloc] init];
+    
+    NSString * pictureSizeStr = SCLFacebookUtilsStringFromPictureSize(size);
+    if ( pictureSizeStr ) {
+        dictionary[@"type"] = pictureSizeStr;
+    }
+    
+    NSString * accessToken = [self currentUserFacebookAccessToken];
+    if ( accessToken ) {
+        dictionary[@"token"] = accessToken;
+    }
+    
+    return [NSURL URLWithString:[NSString stringWithFormat:
+                                 @"https://graph.facebook.com/slessans/picture%@",
+                                 [dictionary generateQueryString]]];
 }
 
 - (void) setSession:(FBSession *)session
@@ -180,7 +230,7 @@ NSString * const SCLFacebookUtilsErrorDomain = @"com.scottlessans.facebookutils"
     // Create request for user's Facebook data
     NSString * requestPath =
     @"me/?fields=id,username,first_name,middle_name,last_name,email,"
-    @"hometown,location,gender,birthday,relationship_status,picture";
+    @"hometown,location,gender,birthday,relationship_status";
     
     // Send request to Facebook
     FBRequest * request = [FBRequest requestForGraphPath:requestPath];
@@ -220,7 +270,6 @@ NSString * const SCLFacebookUtilsErrorDomain = @"com.scottlessans.facebookutils"
             info.lastName = userData[@"last_name"];
             info.location = userData[@"location"][@"name"];
             info.hometown = userData[@"hometown"][@"name"];
-            info.profilePictureUrl = [NSURL URLWithString:userData[@"picture"][@"data"][@"url"]];
             
         }
         

@@ -12,7 +12,6 @@
 @interface SCLFacebookUserInfo ()
 
 @property (nonatomic, strong) NSString * facebookUserId;
-@property (nonatomic, strong) NSURL * profilePictureUrl;
 @property (nonatomic, strong) NSString * location;
 @property (nonatomic, strong) NSString * hometown;
 @property (nonatomic, strong) NSString * email;
@@ -31,7 +30,6 @@
 @implementation SCLFacebookUserInfo (Protected)
 
 @dynamic facebookUserId;
-@dynamic profilePictureUrl;
 @dynamic location;
 @dynamic hometown;
 @dynamic email;

@@ -24,6 +24,16 @@ typedef NS_ENUM(NSInteger, SCLFacebookUtilsLoginState) {
     SCLFacebookUtilsLoginStateFailed
 };
 
+typedef NS_ENUM(NSInteger, SCLFacebookUtilsPictureSize) {
+    SCLFacebookUtilsPictureSizeDefault,
+    SCLFacebookUtilsPictureSizeSquare = 1,
+    SCLFacebookUtilsPictureSizeSmall,
+    SCLFacebookUtilsPictureSizeNormal,
+    SCLFacebookUtilsPictureSizeLarge
+};
+
+extern NSString * SCLFacebookUtilsStringFromPictureSize(SCLFacebookUtilsPictureSize);
+
 typedef void (^SCLFacebookUtilsLoginBlock)(SCLFacebookUtils * utils, SCLFacebookUtilsLoginState result, NSError * error);
 
 typedef void (^SCLFacebookUserInfoCallback)(SCLFacebookUserInfo * info, NSError * error);
@@ -51,6 +61,11 @@ typedef void (^SCLFacebookUserInfoCallback)(SCLFacebookUserInfo * info, NSError 
 - (BOOL) doesHaveLoggedInUser;
 - (BOOL) doesHaveCachedUser;
 - (void) logoutFacebookUser;
+
+#pragma mark profile pictures
+- (NSURL *) profilePictureUrlForUserWithId:(NSString *)userId;
+- (NSURL *) profilePictureUrlForUserWithId:(NSString *)userId
+                                      size:(SCLFacebookUtilsPictureSize)size;
 
 #pragma mark user info
 - (void) refreshFacebookUserInfoInBackgroundWithBlock:(SCLFacebookUserInfoCallback)block;

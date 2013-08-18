@@ -20,6 +20,5 @@
 @property (nonatomic, readonly) NSString * lastName;
 @property (nonatomic, readonly) NSString * email;
 @property (nonatomic, readonly) NSDate * birthday;
-@property (nonatomic, readonly) NSURL * profilePictureUrl;
 
 @end
