@@ -16,7 +16,7 @@ NSString * const SCLFacebookUtilsErrorDomain = @"com.scottlessans.facebookutils"
 
 NSString * SCLFacebookUtilsStringFromPictureSize(SCLFacebookUtilsPictureSize pictureSize)
 {
-    switch (pictureSize) {
+    switch ((NSInteger)pictureSize) {
         case SCLFacebookUtilsPictureSizeSquare:
             return @"square";
             break;
@@ -31,6 +31,29 @@ NSString * SCLFacebookUtilsStringFromPictureSize(SCLFacebookUtilsPictureSize pic
             break;
     }
     return nil;
+}
+
+NSString * SCLFacebookUtilsFriendName(NSDictionary * friendData)
+{
+    return friendData[@"name"];
+}
+
+NSString * SCLFacebookUtilsFriendId(NSDictionary * friendData)
+{
+    return friendData[@"id"];
+}
+
+NSURL * SCLFacebookUtilsFriendProfilePictureUrl(NSDictionary * friendData)
+{
+    return SCLFacebookUtilsFriendProfilePictureUrlWithSize(friendData, SCLFacebookUtilsPictureSizeDefault);
+}
+
+NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * friendData, SCLFacebookUtilsPictureSize size)
+{
+    NSString * userId = SCLFacebookUtilsFriendId(friendData);
+    if (!userId) return nil;
+    return [[SCLFacebookUtils sharedInstance] profilePictureUrlForUserWithId:userId
+                                                                        size:size];
 }
 
 @interface SCLFacebookUtils ()
@@ -88,8 +111,8 @@ NSString * SCLFacebookUtilsStringFromPictureSize(SCLFacebookUtilsPictureSize pic
     }
     
     return [NSURL URLWithString:[NSString stringWithFormat:
-                                 @"https://graph.facebook.com/slessans/picture%@",
-                                 [dictionary generateQueryString]]];
+                                 @"https://graph.facebook.com/%@/picture%@",
+                                 userId, [dictionary generateQueryString]]];
 }
 
 - (void) setSession:(FBSession *)session
@@ -281,6 +304,51 @@ NSString * SCLFacebookUtilsStringFromPictureSize(SCLFacebookUtilsPictureSize pic
                 block(info, error);
             }
         });
+    }];
+    
+}
+
+- (void) fetchFriendsOfCurrentUserWithBlock:(SCLFacebookFriendsCallback)block
+{
+    [self fetchFriendsOfUser:@"me"
+                   withBlock:block];
+}
+
+- (void) fetchFriendsOfUser:(NSString *)userFacebookId withBlock:(SCLFacebookFriendsCallback)block
+{
+    if ( block == NULL ) return;
+    
+    if ( ! self.session || ! self.session.isOpen )
+    {
+        SCLSafelyExecuteOnMainThread(^{
+            NSDictionary * userInfo = @{NSLocalizedDescriptionKey: @"Facebook session object is not existent or not open."};
+            NSError * error = [NSError errorWithDomain:SCLFacebookUtilsErrorDomain
+                                                  code:SCLFacebookUtilsErrorCodeInvalidSession
+                                              userInfo:userInfo];
+            block(self, nil, error);
+        });
+        return;
+    }        
+    
+    // Create request for user's Facebook data
+    NSString * requestPath = [NSString stringWithFormat:@"%@/friends", userFacebookId];
+    
+    // Send request to Facebook
+    FBRequest * request = [FBRequest requestForGraphPath:requestPath];
+    [request startWithCompletionHandler:^(FBRequestConnection *connection, id data, NSError *error) {
+        
+        if ( error ) {
+            SCLSafelyExecuteOnMainThread(^{
+                block(self, nil, error);
+            });
+            return;
+        }
+        
+        NSDictionary * result = data;
+        SCLSafelyExecuteOnMainThread(^{
+            block(self, result[@"data"], nil);
+        });
+        
     }];
     
 }

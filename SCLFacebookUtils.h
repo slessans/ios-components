@@ -37,6 +37,14 @@ extern NSString * SCLFacebookUtilsStringFromPictureSize(SCLFacebookUtilsPictureS
 typedef void (^SCLFacebookUtilsLoginBlock)(SCLFacebookUtils * utils, SCLFacebookUtilsLoginState result, NSError * error);
 
 typedef void (^SCLFacebookUserInfoCallback)(SCLFacebookUserInfo * info, NSError * error);
+typedef void (^SCLFacebookFriendsCallback)(SCLFacebookUtils * utils, NSArray * friends, NSError * error);
+
+// dealing with friends request results
+extern NSString * SCLFacebookUtilsFriendName(NSDictionary * friendData);
+extern NSString * SCLFacebookUtilsFriendId(NSDictionary * friendData);
+extern NSURL * SCLFacebookUtilsFriendProfilePictureUrl(NSDictionary * friendData);
+extern NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * friendData, SCLFacebookUtilsPictureSize size);
+
 
 @interface SCLFacebookUtils : NSObject
 
@@ -70,6 +78,11 @@ typedef void (^SCLFacebookUserInfoCallback)(SCLFacebookUserInfo * info, NSError 
 #pragma mark user info
 - (void) refreshFacebookUserInfoInBackgroundWithBlock:(SCLFacebookUserInfoCallback)block;
 
+#pragma mark friends
+- (void) fetchFriendsOfCurrentUserWithBlock:(SCLFacebookFriendsCallback)block;
+- (void) fetchFriendsOfUser:(NSString *)userFacebookId withBlock:(SCLFacebookFriendsCallback)block;
+
 @end
+
 
 
