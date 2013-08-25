@@ -148,21 +148,26 @@ NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * friendDat
     }
     
     // if the session isn't open, let's open it now and present the login UX to the user
+    __block BOOL didRespondToInitialOpenRequest = NO;
     [self.session openWithCompletionHandler:^(FBSession *session,
                                               FBSessionState status,
                                               NSError *error) {
-        //SCLFacebookUtilsLoginState state = SCLFacebookUtilsLoginStateFailed;
-        if ( FB_ISSESSIONOPENWITHSTATE(status) ) {
-            NSLog(@"Facebook open session success (status %d) %@", status, session);
-            SCLSafelyExecuteOnMainThread(^{
-                callback(self, SCLFacebookUtilsLoginStateSuccess, nil);
-            });
-        } else {
-            NSLog(@"Facebook open session FAIL (status %d): %@ %@", status, error, session);
-            SCLSafelyExecuteOnMainThread(^{
-                callback(self, SCLFacebookUtilsLoginStateFailed, error);
-            });            
-        }
+        SCLSafelyExecuteOnMainThread(^{
+            if ( didRespondToInitialOpenRequest ) return;
+            didRespondToInitialOpenRequest = YES;
+            
+            if ( FB_ISSESSIONOPENWITHSTATE(status) ) {
+                NSLog(@"Facebook open session success (status %d) %@", status, session);
+                if ( callback != NULL ) {
+                    callback(self, SCLFacebookUtilsLoginStateSuccess, nil);
+                }
+            } else {
+                NSLog(@"Facebook open session FAIL (status %d): %@ %@", status, error, session);
+                if ( callback != NULL ) {
+                    callback(self, SCLFacebookUtilsLoginStateFailed, error);
+                }
+            }
+        });
     }];
     
 }
