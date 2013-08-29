@@ -119,6 +119,7 @@ extern NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * fr
 
 #pragma mark posting to other users feeds
 // WILL launch a dialod
+// USER IDS should be NSString
 - (void) sendRequest:(SCLFacebookRequest *)request
              toUsers:(NSArray *)userIds
         withCallback:(SCLSendRequestCallback)block;

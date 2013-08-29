@@ -425,7 +425,6 @@ NS_INLINE NSError * isFacebookSessionValidForOpenGraphCalls(FBSession * session)
     if ( [components count] == 1 )
     {
         searchText = components[0];
-        
         [self runFQLQueryWithCompletionHandler:handler query:
          @"SELECT uid, name, pic_square FROM user WHERE uid IN ( "
          @"SELECT uid2 FROM friend WHERE uid1 = %@ ) "
