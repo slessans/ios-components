@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import "SCLFacebookUserInfo.h"
+#import "SCLFacebookPost.h"
+#import "SCLFacebookRequest.h"
 
 extern NSString * const SCLFacebookUtilsErrorDomain;
 
@@ -32,12 +34,24 @@ typedef NS_ENUM(NSInteger, SCLFacebookUtilsPictureSize) {
     SCLFacebookUtilsPictureSizeLarge
 };
 
+typedef NS_ENUM(NSInteger, SCLFacebookResult) {
+    SCLFacebookResultError = 0,
+    SCLFacebookResultUserCancelled = 1, // not always applicable
+    SCLFacebookResultSuccess = 5
+};
+
 extern NSString * SCLFacebookUtilsStringFromPictureSize(SCLFacebookUtilsPictureSize);
 
-typedef void (^SCLFacebookUtilsLoginBlock)(SCLFacebookUtils * utils, SCLFacebookUtilsLoginState result, NSError * error);
-
+typedef void (^SCLFacebookUtilsLoginBlock)(SCLFacebookUtilsLoginState result, NSError * error);
 typedef void (^SCLFacebookUserInfoCallback)(SCLFacebookUserInfo * info, NSError * error);
-typedef void (^SCLFacebookFriendsCallback)(SCLFacebookUtils * utils, NSArray * friends, NSError * error);
+typedef void (^SCLFacebookFriendsCallback)(NSArray * friends, NSError * error);
+typedef void (^SCLPermissionRequestCallback)(BOOL permissionGranted, NSError * error);
+typedef void (^SCLSendRequestCallback)(SCLFacebookRequest * request, NSArray * recipientIds, SCLFacebookResult result, NSError * error);
+
+// if success createdPostId has id of new post, if error createdPostId is nil and error has error
+typedef void (^SCLPublishPostCallback)(SCLFacebookPost * post, NSString * createdPostId, NSError * error);
+
+
 
 // dealing with friends request results
 extern NSString * SCLFacebookUtilsFriendName(NSDictionary * friendData);
@@ -46,6 +60,9 @@ extern NSURL * SCLFacebookUtilsFriendProfilePictureUrl(NSDictionary * friendData
 extern NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * friendData, SCLFacebookUtilsPictureSize size);
 
 
+// IMPORTANT NOTE: any input going into a method that interacts with the facebook API
+// could potentially be going into a FQL query and should be sanitized BEFORE being
+// passed to these methods.
 @interface SCLFacebookUtils : NSObject
 
 @property (nonatomic, readonly) FBSession * session;
@@ -81,6 +98,30 @@ extern NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * fr
 #pragma mark friends
 - (void) fetchFriendsOfCurrentUserWithBlock:(SCLFacebookFriendsCallback)block;
 - (void) fetchFriendsOfUser:(NSString *)userFacebookId withBlock:(SCLFacebookFriendsCallback)block;
+
+- (void) fetchRandomFriendsOfCurrentUserWithLimit:(NSInteger)limit
+                                            block:(SCLFacebookFriendsCallback)block;
+- (void) fetchRandomFriendsOfUser:(NSString *)userFacebookId
+                            limit:(NSInteger)limit
+                            block:(SCLFacebookFriendsCallback)block;
+
+- (void) fetchFriendsOfCurrentUserWithSearchText:(NSString *)searchText
+                                           block:(SCLFacebookFriendsCallback)block;
+
+- (void) fetchFriendsOfUser:(NSString *)userFacebookId
+                 searchText:(NSString *)searchText
+                      block:(SCLFacebookFriendsCallback)block;
+
+#pragma mark posting on the current users feed
+- (BOOL) canPublishToFeedOfCurrentUser;
+- (void) requestPermissionToPublishToFeedOfCurrentUserWithBlock:(SCLPermissionRequestCallback)block;
+- (void) publishPostToFeedOfCurrentUser:(SCLFacebookPost *)post withCallback:(SCLPublishPostCallback)block;
+
+#pragma mark posting to other users feeds
+// WILL launch a dialod
+- (void) sendRequest:(SCLFacebookRequest *)request
+             toUsers:(NSArray *)userIds
+        withCallback:(SCLSendRequestCallback)block;
 
 @end
 

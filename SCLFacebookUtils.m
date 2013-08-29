@@ -14,6 +14,8 @@
 
 NSString * const SCLFacebookUtilsErrorDomain = @"com.scottlessans.facebookutils";
 
+static NSString * const FBPermissionPublishAction = @"publish_actions";
+
 NSString * SCLFacebookUtilsStringFromPictureSize(SCLFacebookUtilsPictureSize pictureSize)
 {
     switch ((NSInteger)pictureSize) {
@@ -56,10 +58,21 @@ NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * friendDat
                                                                         size:size];
 }
 
+FBRequest * facebookRequestFromFQLQuery(NSString * query, ...) __attribute__((format(__NSString__, 1, 2)));
+FBRequest * facebookRequestFromFQLQueryWithArgs(NSString * query, va_list arguments);
+
+
+// checks if session is valid to be used for an open graph call, and, if
+// it isn't, returns NSError describing why not.
+NS_INLINE NSError * isFacebookSessionValidForOpenGraphCalls(FBSession * session);
+
 @interface SCLFacebookUtils ()
 
 @property (nonatomic, strong) FBSession * session;
 @property (nonatomic, strong) SCLFacebookUserInfo * currentUserInfo;
+
+- (void) runFQLQueryWithCompletionHandler:(FBRequestHandler)handler
+                                    query:(NSString *)query, ... NS_FORMAT_FUNCTION(2,3);
 
 @end
 
@@ -135,7 +148,7 @@ NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * friendDat
     if ( [self doesHaveLoggedInUser] ) {
         NSLog(@"Already open.");
         dispatch_async(dispatch_get_main_queue(), ^{
-            callback(self, SCLFacebookUtilsLoginStateAlreadyLoggedIn, nil);
+            callback(SCLFacebookUtilsLoginStateAlreadyLoggedIn, nil);
         });
         return;
     }
@@ -159,12 +172,12 @@ NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * friendDat
             if ( FB_ISSESSIONOPENWITHSTATE(status) ) {
                 NSLog(@"Facebook open session success (status %d) %@", status, session);
                 if ( callback != NULL ) {
-                    callback(self, SCLFacebookUtilsLoginStateSuccess, nil);
+                    callback(SCLFacebookUtilsLoginStateSuccess, nil);
                 }
             } else {
                 NSLog(@"Facebook open session FAIL (status %d): %@ %@", status, error, session);
                 if ( callback != NULL ) {
-                    callback(self, SCLFacebookUtilsLoginStateFailed, error);
+                    callback(SCLFacebookUtilsLoginStateFailed, error);
                 }
             }
         });
@@ -243,14 +256,11 @@ NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * friendDat
 - (void) refreshFacebookUserInfoInBackgroundWithBlock:(SCLFacebookUserInfoCallback)block
 {
     
-    if ( ! self.session || ! self.session.isOpen )
+    NSError * fbSessionError = isFacebookSessionValidForOpenGraphCalls(self.session);
+    if ( fbSessionError )
     {
         SCLSafelyExecuteOnMainThread(^{
-            NSDictionary * userInfo = @{NSLocalizedDescriptionKey: @"Facebook session object is not existent or not open."};
-            NSError * error = [NSError errorWithDomain:SCLFacebookUtilsErrorDomain
-                                                  code:SCLFacebookUtilsErrorCodeInvalidSession
-                                              userInfo:userInfo];
-            block(nil, error);
+            block(nil, fbSessionError);
         });
         return;
     }
@@ -313,27 +323,141 @@ NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * friendDat
     
 }
 
+
+
+- (void) fetchRandomFriendsOfCurrentUserWithLimit:(NSInteger)limit
+                                            block:(SCLFacebookFriendsCallback)block
+{
+    [self fetchRandomFriendsOfUser:@"me"
+                             limit:limit
+                             block:block];
+}
+
+- (void) fetchRandomFriendsOfUser:(NSString *)userFacebookId
+                            limit:(NSInteger)limit
+                            block:(SCLFacebookFriendsCallback)block
+{
+    // TODO: if limit <= 0 hit callback with NSError
+    if ( block == NULL || limit <= 0 ) return;
+
+    FBRequestHandler handler = ^(FBRequestConnection *connection, id result, NSError *error)
+    {
+        if ( error )
+        {
+            block(nil, error);
+        }
+        else
+        {
+            block(result[@"data"], nil);
+        }
+    };
+    
+    if ( [userFacebookId isEqualToString:@"me"] )
+    {
+        userFacebookId = @"me()";
+    }
+    else
+    {
+        userFacebookId = [NSString stringWithFormat:@"\"%@\"", userFacebookId];
+    }
+    
+    [self runFQLQueryWithCompletionHandler:handler query:
+     @"SELECT uid, name, pic_square FROM user WHERE uid IN ( "
+     @"SELECT uid2 FROM friend WHERE uid1 = %@ "
+     @") ORDER BY rand() limit %d",
+     userFacebookId, limit];
+}
+
 - (void) fetchFriendsOfCurrentUserWithBlock:(SCLFacebookFriendsCallback)block
 {
     [self fetchFriendsOfUser:@"me"
                    withBlock:block];
 }
 
+- (void) fetchFriendsOfCurrentUserWithSearchText:(NSString *)searchText
+                                           block:(SCLFacebookFriendsCallback)block
+{
+    [self fetchFriendsOfUser:@"me"
+                  searchText:searchText
+                       block:block];
+}
+
+- (void) fetchFriendsOfUser:(NSString *)userFacebookId
+                 searchText:(NSString *)searchText
+                      block:(SCLFacebookFriendsCallback)block
+{
+    if ( block == NULL ) return;
+
+    searchText = [[searchText lowercaseString]
+                  stringByTrimmingCharactersInSet:
+                  [NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    
+    if ( ! searchText || [searchText isEqualToString:@""] )
+    {
+        [self fetchFriendsOfUser:userFacebookId
+                       withBlock:block];
+        return;
+    }
+    
+    FBRequestHandler handler = ^(FBRequestConnection *connection, id result, NSError *error)
+    {
+        if ( error )
+        {
+            block(nil, error);
+        }
+        else
+        {
+            block(result[@"data"], nil);
+        }
+    };
+    
+    if ( [userFacebookId isEqualToString:@"me"] )
+    {
+        userFacebookId = @"me()";
+    }
+    else
+    {
+        userFacebookId = [NSString stringWithFormat:@"\"%@\"", userFacebookId];
+    }
+    
+    NSArray * components = [searchText componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    
+    if ( [components count] == 1 )
+    {
+        searchText = components[0];
+        
+        [self runFQLQueryWithCompletionHandler:handler query:
+         @"SELECT uid, name, pic_square FROM user WHERE uid IN ( "
+         @"SELECT uid2 FROM friend WHERE uid1 = %@ ) "
+         @"AND (strpos(lower(first_name),\"%@\") = 0 OR "
+         @"strpos(lower(last_name),\"%@\") = 0)",
+         userFacebookId, searchText, searchText];
+        
+    }
+    else
+    {
+        searchText = [components componentsJoinedByString:@" "];
+        [self runFQLQueryWithCompletionHandler:handler query:
+         @"SELECT uid, name, pic_square FROM user WHERE uid IN ( "
+         @"SELECT uid2 FROM friend WHERE uid1 = %@ ) "
+         @"AND strpos(lower(concat(first_name,\" \",last_name)),\"%@\") >= 0",
+         userFacebookId, searchText];
+    }
+    
+}
+
 - (void) fetchFriendsOfUser:(NSString *)userFacebookId withBlock:(SCLFacebookFriendsCallback)block
 {
     if ( block == NULL ) return;
     
-    if ( ! self.session || ! self.session.isOpen )
+    NSError * fbSessionError = isFacebookSessionValidForOpenGraphCalls(self.session);
+    if ( fbSessionError )
     {
         SCLSafelyExecuteOnMainThread(^{
-            NSDictionary * userInfo = @{NSLocalizedDescriptionKey: @"Facebook session object is not existent or not open."};
-            NSError * error = [NSError errorWithDomain:SCLFacebookUtilsErrorDomain
-                                                  code:SCLFacebookUtilsErrorCodeInvalidSession
-                                              userInfo:userInfo];
-            block(self, nil, error);
+            block(nil, fbSessionError);
         });
         return;
-    }        
+    }
     
     // Create request for user's Facebook data
     NSString * requestPath = [NSString stringWithFormat:@"%@/friends", userFacebookId];
@@ -344,20 +468,175 @@ NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * friendDat
         
         if ( error ) {
             SCLSafelyExecuteOnMainThread(^{
-                block(self, nil, error);
+                block(nil, error);
             });
             return;
         }
         
         NSDictionary * result = data;
         SCLSafelyExecuteOnMainThread(^{
-            block(self, result[@"data"], nil);
+            block(result[@"data"], nil);
         });
         
     }];
     
 }
 
+- (void) runFQLQueryWithCompletionHandler:(FBRequestHandler)handler query:(NSString *)query, ...
+{
+    if ( handler == NULL ) return;
+    
+    NSError * facebookSessionError = isFacebookSessionValidForOpenGraphCalls(self.session);
+    if ( facebookSessionError )
+    {
+        handler(nil, nil, facebookSessionError);
+        return;
+    }
+    va_list arg_list;
+    va_start(arg_list, query);
+    FBRequest * request = facebookRequestFromFQLQueryWithArgs(query, arg_list);
+    va_end(arg_list);
+    
+    [request startWithCompletionHandler:handler];
+}
+
+- (BOOL) canPublishToFeedOfCurrentUser
+{
+    if ([self.session.permissions indexOfObject:FBPermissionPublishAction] == NSNotFound)
+    {
+        return NO;
+    }
+    return YES;
+}
+
+- (void) requestPermissionToPublishToFeedOfCurrentUserWithBlock:(SCLPermissionRequestCallback)block
+{
+    if ( [self canPublishToFeedOfCurrentUser] )
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            block(YES, nil);
+        });
+        return;
+    }
+    
+    [FBSession openActiveSessionWithPublishPermissions:@[FBPermissionPublishAction]
+                                       defaultAudience:FBSessionDefaultAudienceFriends
+                                          allowLoginUI:YES
+                                     completionHandler:^(FBSession *session, FBSessionState status, NSError *error)
+    {
+        const BOOL success = [self canPublishToFeedOfCurrentUser];
+        SCLSafelyExecuteOnMainThread(^{
+            block(success, error);
+        });
+    }];
+}
+
+- (void) publishPostToFeedOfCurrentUser:(SCLFacebookPost *)post
+                           withCallback:(SCLPublishPostCallback)block
+{
+    NSDictionary * postData = [post facebookParameters];
+    
+    // TODO: throw excpetion or hit callback with error if postData is nil or not valid?
+    if ( ! post || ! [post isValid] )
+    {
+        NSLog(@"Warning, post %@ is nil or invalid", post);
+    }
+    
+    FBRequest * request = [FBRequest requestWithGraphPath:@"me/feed"
+                                               parameters:postData
+                                               HTTPMethod:@"POST"];
+    [request startWithCompletionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
+        
+        NSString * postId = nil;
+        if ( ! error && [result isKindOfClass:[NSDictionary class]] )
+        {
+            postId = result[@"id"];
+        }
+        SCLSafelyExecuteOnMainThread(^{
+            block(post, postId, error);
+        });
+    }];
+}
+
+- (void) sendRequest:(SCLFacebookRequest *)request
+             toUsers:(NSArray *)userIds
+        withCallback:(SCLSendRequestCallback)block
+{
+    
+    if ( ! userIds || [userIds count] == 0 )
+    {
+        if ( block != NULL ) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                block(request, userIds, SCLFacebookResultError, nil);
+            });
+        }
+        return;
+    }
+    
+    NSString * toString;
+    if ( [userIds count] == 1 ) {
+        toString = userIds[0];
+    } else {
+        toString = [userIds componentsJoinedByString:@","];
+    }
+    
+    NSDictionary * params = @{@"to" : toString};
+    
+    
+    FBSession * session = (self.session && self.session.isOpen) ? self.session : nil;
+    [FBWebDialogs presentRequestsDialogModallyWithSession:session
+                                                  message:request.message
+                                                    title:request.title
+                                               parameters:params
+                                                  handler:^(FBWebDialogResult webDialogResult, NSURL *resultURL, NSError *error)
+    {
+        SCLFacebookResult result = SCLFacebookResultError;
+        if ( ! error ) {
+            if ( FBWebDialogResultDialogNotCompleted == webDialogResult ) {
+                result = SCLFacebookResultUserCancelled;
+            } else {
+                result = SCLFacebookResultSuccess;
+            }
+        }
+        
+        if ( block != NULL ) {
+            SCLSafelyExecuteOnMainThread(^{
+                block(request, userIds, result, error);
+            });
+        }
+    }];
+}
+
 @end
 
 
+NS_INLINE NSError * isFacebookSessionValidForOpenGraphCalls(FBSession * session)
+{
+    NSError * error = nil;
+    if ( ! session || ! session.isOpen )
+    {
+        NSDictionary * userInfo = @{NSLocalizedDescriptionKey: @"Facebook session object is not existent or not open."};
+        error = [NSError errorWithDomain:SCLFacebookUtilsErrorDomain
+                                    code:SCLFacebookUtilsErrorCodeInvalidSession
+                                userInfo:userInfo];
+    }
+    return error;
+}
+
+FBRequest * facebookRequestFromFQLQuery(NSString * query, ...)
+{
+    va_list arg_list;
+    va_start(arg_list, query);
+    FBRequest * request = facebookRequestFromFQLQueryWithArgs(query, arg_list);
+    va_end(arg_list);
+    
+    return request;
+}
+
+FBRequest * facebookRequestFromFQLQueryWithArgs(NSString * query, va_list arguments)
+{
+    NSString * compiledQuery = [[NSString alloc] initWithFormat:query arguments:arguments];
+    return [FBRequest requestWithGraphPath:@"/fql"
+                                parameters:@{@"q": compiledQuery}
+                                HTTPMethod:@"GET"];
+}
