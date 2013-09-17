@@ -1,9 +1,9 @@
 //
 //  MQToolbar.h
-//  Marquee
+//  SCL IOS Components
 //
 //  Created by Scott Lessans on 8/24/13.
-//  Copyright (c) 2013 Marquee Mobile. All rights reserved.
+//  Copyright (c) 2013 Scott Lessans. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

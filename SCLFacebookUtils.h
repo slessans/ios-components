@@ -1,6 +1,6 @@
 //
 //  SCLFacebookUtils.h
-//  FacebookLoginTest
+//  SCL IOS Components
 //
 //  Created by Scott Lessans on 8/6/13.
 //  Copyright (c) 2013 Scott Lessans. All rights reserved.
@@ -50,7 +50,7 @@ typedef void (^SCLSendRequestCallback)(SCLFacebookRequest * request, NSArray * r
 
 // if success createdPostId has id of new post, if error createdPostId is nil and error has error
 typedef void (^SCLPublishPostCallback)(SCLFacebookPost * post, NSString * createdPostId, NSError * error);
-
+typedef void (^SCLFacebookDialogCallback)(SCLFacebookResult result, NSError * error);
 
 
 // dealing with friends request results
@@ -111,6 +111,11 @@ extern NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * fr
 - (void) fetchFriendsOfUser:(NSString *)userFacebookId
                  searchText:(NSString *)searchText
                       block:(SCLFacebookFriendsCallback)block;
+
+#pragma mark sending a message
+- (void) sendMessageWithLink:(NSURL *)link
+                     toUsers:(NSArray *)userIds
+                withCallback:(SCLFacebookDialogCallback)block;
 
 #pragma mark posting on the current users feed
 - (BOOL) canPublishToFeedOfCurrentUser;

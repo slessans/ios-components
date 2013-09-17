@@ -1,6 +1,6 @@
 //
 //  SCLFacebookUtils.m
-//  FacebookLoginTest
+//  SCL IOS Components
 //
 //  Created by Scott Lessans on 8/6/13.
 //  Copyright (c) 2013 Scott Lessans. All rights reserved.
@@ -604,6 +604,45 @@ NS_INLINE NSError * isFacebookSessionValidForOpenGraphCalls(FBSession * session)
             });
         }
     }];
+}
+
+- (void) sendMessageWithLink:(NSURL *)link
+                     toUsers:(NSArray *)userIds
+                withCallback:(SCLFacebookDialogCallback)block
+{
+    
+    NSMutableDictionary * parameters = [[NSMutableDictionary alloc] init];
+ 
+    if ( userIds && [userIds count] > 0 ) {
+        parameters[@"to"] = [userIds componentsJoinedByString:@","];
+    }
+    
+    if ( link ) {
+        parameters[@"link"] = link;
+    }
+    
+    
+    FBWebDialogHandler handler = NULL;
+    if ( block != NULL ) {
+        handler = ^(FBWebDialogResult fbResult, NSURL *resultURL, NSError *error)
+        {
+            SCLFacebookResult result = SCLFacebookResultError;
+            if ( fbResult == FBWebDialogResultDialogCompleted )
+            {
+                result = SCLFacebookResultSuccess;
+            }
+            else if ( ! error )
+            {
+                result = SCLFacebookResultUserCancelled;
+            }
+            block(result, error);
+        };
+    }
+    
+    [FBWebDialogs presentDialogModallyWithSession:self.session
+                                           dialog:@"message"
+                                       parameters:parameters
+                                          handler:handler];
 }
 
 @end
