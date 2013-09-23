@@ -12,5 +12,8 @@
 
 @property (nonatomic, strong) NSString * title;
 @property (nonatomic, strong) NSString * message;
+@property (nonatomic, strong) NSDictionary * jsonData;
+
+- (NSString *) jsonDataString;
 
 @end

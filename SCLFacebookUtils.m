@@ -204,6 +204,17 @@ NS_INLINE NSError * isFacebookSessionValidForOpenGraphCalls(FBSession * session)
     [self.session closeAndClearTokenInformation];
 }
 
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication
+         annotation:(id)annotation {
+    // attempt to extract a token from the url
+    return [FBAppCall handleOpenURL:url
+                  sourceApplication:sourceApplication
+                        withSession:self.session];
+}
+
+
 // FBSample logic
 // The native facebook application transitions back to an authenticating application when the user
 // chooses to either log in, or cancel. The url passed to this method contains the token in the
@@ -217,11 +228,13 @@ NS_INLINE NSError * isFacebookSessionValidForOpenGraphCalls(FBSession * session)
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)url
   sourceApplication:(NSString *)sourceApplication
-         annotation:(id)annotation {
-    // attempt to extract a token from the url
+         annotation:(id)annotation
+    fallbackHandler:(void (^)(FBAppCall *))fallbackBlock
+{
     return [FBAppCall handleOpenURL:url
                   sourceApplication:sourceApplication
-                        withSession:self.session];
+                        withSession:self.session
+                    fallbackHandler:fallbackBlock];
 }
 
 // FBSample logic
@@ -579,8 +592,11 @@ NS_INLINE NSError * isFacebookSessionValidForOpenGraphCalls(FBSession * session)
         toString = [userIds componentsJoinedByString:@","];
     }
     
-    NSDictionary * params = @{@"to" : toString};
+    NSMutableDictionary * params = [@{@"to" : toString} mutableCopy];
     
+    if ( request.jsonData ) {
+        params[@"data"] = [request jsonDataString];
+    }
     
     FBSession * session = (self.session && self.session.isOpen) ? self.session : nil;
     [FBWebDialogs presentRequestsDialogModallyWithSession:session
@@ -604,45 +620,6 @@ NS_INLINE NSError * isFacebookSessionValidForOpenGraphCalls(FBSession * session)
             });
         }
     }];
-}
-
-- (void) sendMessageWithLink:(NSURL *)link
-                     toUsers:(NSArray *)userIds
-                withCallback:(SCLFacebookDialogCallback)block
-{
-    
-    NSMutableDictionary * parameters = [[NSMutableDictionary alloc] init];
- 
-    if ( userIds && [userIds count] > 0 ) {
-        parameters[@"to"] = [userIds componentsJoinedByString:@","];
-    }
-    
-    if ( link ) {
-        parameters[@"link"] = link;
-    }
-    
-    
-    FBWebDialogHandler handler = NULL;
-    if ( block != NULL ) {
-        handler = ^(FBWebDialogResult fbResult, NSURL *resultURL, NSError *error)
-        {
-            SCLFacebookResult result = SCLFacebookResultError;
-            if ( fbResult == FBWebDialogResultDialogCompleted )
-            {
-                result = SCLFacebookResultSuccess;
-            }
-            else if ( ! error )
-            {
-                result = SCLFacebookResultUserCancelled;
-            }
-            block(result, error);
-        };
-    }
-    
-    [FBWebDialogs presentDialogModallyWithSession:self.session
-                                           dialog:@"message"
-                                       parameters:parameters
-                                          handler:handler];
 }
 
 @end

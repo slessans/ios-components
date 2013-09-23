@@ -60,6 +60,8 @@ extern NSURL * SCLFacebookUtilsFriendProfilePictureUrl(NSDictionary * friendData
 extern NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * friendData, SCLFacebookUtilsPictureSize size);
 
 
+@class FBAppCall;
+
 // IMPORTANT NOTE: any input going into a method that interacts with the facebook API
 // could potentially be going into a FQL query and should be sanitized BEFORE being
 // passed to these methods.
@@ -74,10 +76,18 @@ extern NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * fr
 
 #pragma mark methods to put in app delegate
 - (void) applicationWillTerminate:(UIApplication *)application;
+
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)url
   sourceApplication:(NSString *)sourceApplication
          annotation:(id)annotation;
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication
+         annotation:(id)annotation
+    fallbackHandler:(void (^)(FBAppCall *))fallbackBlock;
+
 - (void) applicationDidBecomeActive:(UIApplication *)application;
 
 
@@ -111,11 +121,6 @@ extern NSURL * SCLFacebookUtilsFriendProfilePictureUrlWithSize(NSDictionary * fr
 - (void) fetchFriendsOfUser:(NSString *)userFacebookId
                  searchText:(NSString *)searchText
                       block:(SCLFacebookFriendsCallback)block;
-
-#pragma mark sending a message
-- (void) sendMessageWithLink:(NSURL *)link
-                     toUsers:(NSArray *)userIds
-                withCallback:(SCLFacebookDialogCallback)block;
 
 #pragma mark posting on the current users feed
 - (BOOL) canPublishToFeedOfCurrentUser;

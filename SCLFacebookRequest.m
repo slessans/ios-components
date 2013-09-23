@@ -10,4 +10,21 @@
 
 @implementation SCLFacebookRequest
 
+- (NSString *) jsonDataString
+{
+    if ( ! self.jsonData ) return nil;
+    
+    NSError * error = nil;
+    NSData * jsonData = [NSJSONSerialization dataWithJSONObject:self.jsonData
+                                                        options:0
+                                                          error:&error];
+    if ( error ) {
+        NSLog(@"Error serializing json object %@ into data %@",
+              self.jsonData, error);
+        return nil;
+    }
+
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
 @end
