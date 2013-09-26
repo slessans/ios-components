@@ -92,6 +92,7 @@
 
 #define SCLNSNullForNil(obj) ((obj == nil) ? [NSNull null] : obj)
 
+#pragma mark - SCLLayoutUtils
 @interface SCLLayoutUtils : NSObject
 
 @end
