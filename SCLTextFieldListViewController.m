@@ -192,7 +192,6 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     
     if ( [self accessoryBarViewShouldShowPreviousAndNext] ) {
         self.prevNextControl = [[UISegmentedControl alloc] initWithItems:@[@"Previous", @"Next"]];
-        self.prevNextControl.segmentedControlStyle = UISegmentedControlStyleBar;
         self.prevNextControl.momentary = YES;
         [self.prevNextControl addTarget:self
                                  action:@selector(prevNextControlAction:)
