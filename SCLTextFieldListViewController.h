@@ -18,6 +18,11 @@
 
 - (NSString *) stringValueForTextFieldWithKey:(NSString *)key;
 - (void) setStringValue:(NSString *)value forTextFieldWithKey:(NSString *)key;
+- (UITextField *) textFieldForKey:(NSString *)key;
+
+- (void) trimFieldValues:(NSArray *)fields usingCharactersInSet:(NSCharacterSet *)characterSet; // trim any character set from specified fields
+- (void) trimWhiteSpaceFromFieldValues:(NSArray *)fields; // trims whitespace and newline character set
+- (void) trimWhiteSpaceFromAllFieldValues; // does for all fields
 
 - (void) reloadFields;
 

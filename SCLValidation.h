@@ -8,8 +8,18 @@
 
 #import <Foundation/Foundation.h>
 
+
 @interface SCLValidation : NSObject
+
+// options should have keys from above
++ (BOOL) validateString:(NSString *)string
+              minLength:(NSNumber *)minLength
+              maxLength:(NSNumber *)maxLength
+               canBeNil:(BOOL)canBeNil;
 
 + (BOOL) isValidEmail:(NSString *)emailString;
 
++ (BOOL) isValidPhoneNumber:(NSString *)phoneString;
+
 @end
+

@@ -23,4 +23,7 @@ typedef NS_ENUM(NSInteger, SCLKeyboardToolbarOptions) {
 @property (nonatomic, weak) UIBarButtonItem * prevNextBtnItem;
 @property (nonatomic, weak) UISegmentedControl * prevNextControl;
 
+@property (nonatomic, assign) BOOL previousButtonEnabled;
+@property (nonatomic, assign) BOOL nextButtonEnabled;
+
 @end

@@ -76,6 +76,26 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
     return toolbar;
 }
 
+- (BOOL) previousButtonEnabled
+{
+    return [self.prevNextControl isEnabledForSegmentAtIndex:0];
+}
+
+- (BOOL) nextButtonEnabled
+{
+    return [self.prevNextControl isEnabledForSegmentAtIndex:1];
+}
+
+- (void) setPreviousButtonEnabled:(BOOL)previousButtonEnabled
+{
+    [self.prevNextControl setEnabled:previousButtonEnabled forSegmentAtIndex:0];
+}
+
+- (void) setNextButtonEnabled:(BOOL)nextButtonEnabled
+{
+    [self.prevNextControl setEnabled:nextButtonEnabled forSegmentAtIndex:1];
+}
+
 @end
 
 

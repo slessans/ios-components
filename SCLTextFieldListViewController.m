@@ -61,6 +61,27 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 
 @implementation SCLTextFieldListViewController
 
+- (void) trimFieldValues:(NSArray *)fields usingCharactersInSet:(NSCharacterSet *)characterSet
+{
+    for(NSString * key in fields) {
+        NSString * value = [self stringValueForTextFieldWithKey:key];
+        if ( value ) {
+            [self setStringValue:[value stringByTrimmingCharactersInSet:characterSet]
+             forTextFieldWithKey:key];
+        }
+    }
+}
+
+- (void) trimWhiteSpaceFromFieldValues:(NSArray *)fields
+{
+    [self trimFieldValues:fields usingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+}
+
+- (void) trimWhiteSpaceFromAllFieldValues
+{
+    [self trimWhiteSpaceFromFieldValues:[self.textFieldDictionary allKeys]];
+}
+
 - (BOOL) shouldCloseKeyboardOnTap
 {
     if ( [self.delegate respondsToSelector:@selector(textFieldListViewControllerDoesCloseKeyboardOnTap:)] ) {
@@ -95,7 +116,12 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
 
 - (NSString *) stringValueForTextFieldWithKey:(NSString *)key
 {
-    return ((UITextField *)self.textFieldDictionary[key]).text;
+    return [[self textFieldForKey:key] text];
+}
+
+- (UITextField *) textFieldForKey:(NSString *)key
+{
+    return self.textFieldDictionary[key];
 }
 
 - (void) setStringValue:(NSString *)value forTextFieldWithKey:(NSString *)key
