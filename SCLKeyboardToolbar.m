@@ -8,15 +8,15 @@
 
 #import "SCLKeyboardToolbar.h"
 
-static CGFloat const DefaultAccessoryBarHeight = 44.0f;
-static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
+CGFloat const SCLKeyboardToolbarHeight = 44.0f;
+CGFloat const SCLKeyboardToolbarSidePadding = 0.0f;
 
 @implementation SCLKeyboardToolbar
 
 + (instancetype) sclKeyboardToolbarWithOptions:(SCLKeyboardToolbarOptions)options
 {
     
-    const CGRect toolbarFrame = CGRectMake(0.0f, 0.0f, 0.0f, DefaultAccessoryBarHeight);
+    const CGRect toolbarFrame = CGRectMake(0.0f, 0.0f, 0.0f, SCLKeyboardToolbarHeight);
     SCLKeyboardToolbar * toolbar = [[self alloc] initWithFrame:toolbarFrame];
     toolbar.barStyle = UIBarStyleBlackTranslucent;
     
@@ -37,7 +37,7 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
                                                       target:nil
                                                       action:NULL];
         
-        leftSpacing.width = DefaultAccessoryBarSidePadding;
+        leftSpacing.width = SCLKeyboardToolbarSidePadding;
         
         [items addObject:leftSpacing];
         [items addObject:prevNextBtnItem];
@@ -57,7 +57,7 @@ static CGFloat const DefaultAccessoryBarSidePadding = 0.0f;
         [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace
                                                       target:nil
                                                       action:NULL];
-        rightSpace.width = DefaultAccessoryBarSidePadding;
+        rightSpace.width = SCLKeyboardToolbarSidePadding;
         
         
         UIBarButtonItem * doneBtn =

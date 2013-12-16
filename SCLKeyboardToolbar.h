@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
+extern CGFloat const SCLKeyboardToolbarHeight;
+extern CGFloat const SCLKeyboardToolbarSidePadding;
+
 typedef NS_ENUM(NSInteger, SCLKeyboardToolbarOptions) {
     SCLKeyboardToolbarOptionsDoneButton = 1,
     SCLKeyboardToolbarOptionsNextPrevButton = (1 << 1)
