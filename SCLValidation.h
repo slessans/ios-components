@@ -21,5 +21,8 @@
 
 + (BOOL) isValidPhoneNumber:(NSString *)phoneString;
 
+// if sanitizedNumberOut is not nil, contains JUST the 10 numbers
++ (BOOL) isValidPhoneNumber:(NSString *)phoneString santizedNumber:(NSString **)sanitizedNumberOut;
+
 @end
 
