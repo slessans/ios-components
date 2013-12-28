@@ -13,6 +13,9 @@
 + (NSDate *) today;
 + (NSDate *) tomorrow;
 
+- (NSDate *) dateByAddingDays:(NSInteger)numberOfDays;
+- (NSDate *) dateByAddingMonths:(NSInteger)numberOfMonths;
+
 - (NSString *) stringFromDefaultFormat;
 
 - (BOOL) isOnSameDayAsDate:(NSDate *)date;

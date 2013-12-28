@@ -20,12 +20,27 @@ static const NSInteger DateDayCompareComponents = (NSYearCalendarUnit | NSMonthC
     return [calendar dateFromComponents:components];
 }
 
+- (NSDate *) dateByAddingDays:(NSInteger)numberOfDays
+{
+    return [self dateByAddingTimeInterval:60*60*24*numberOfDays];
+}
+
 + (NSDate *) tomorrow
 {
     NSCalendar * calendar = [NSCalendar currentCalendar];
     NSDateComponents * components = [calendar components:NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit
                                                 fromDate:[NSDate dateWithTimeIntervalSinceNow:60.0 * 60.0 * 24.0]];
     return [calendar dateFromComponents:components];
+}
+
+- (NSDate *) dateByAddingMonths:(NSInteger)numberOfMonths
+{
+    NSCalendar * calendar = [NSCalendar currentCalendar];
+
+    NSDateComponents * offsetComponents = [[NSDateComponents alloc] init];
+    [offsetComponents setMonth:numberOfMonths];
+
+    return [calendar dateByAddingComponents:offsetComponents toDate:self options:0];
 }
 
 - (BOOL) isOnSameDayAsDate:(NSDate *)date
