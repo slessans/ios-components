@@ -10,7 +10,7 @@
 
 @implementation NSString (SCLStringUtils)
 
-- (NSString *) scl_stringByRemovingCharacterInSet:(NSCharacterSet *)characterSet
+- (NSString *) scl_stringByRemovingCharactersInSet:(NSCharacterSet *)characterSet
 {
     const NSUInteger length = [self length];
     NSMutableString * string = [[NSMutableString alloc] init];

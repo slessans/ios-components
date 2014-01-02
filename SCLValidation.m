@@ -91,7 +91,7 @@ static NSArray * PhoneRegexes = nil;
     if (found && sanitizedNumberOut) {
         NSMutableCharacterSet * set = [NSMutableCharacterSet decimalDigitCharacterSet];
         [set invert];
-        *sanitizedNumberOut = [phoneString scl_stringByRemovingCharacterInSet:set];
+        *sanitizedNumberOut = [phoneString scl_stringByRemovingCharactersInSet:set];
     }
     
     return found;

@@ -10,6 +10,6 @@
 
 @interface NSString (SCLStringUtils)
 
-- (NSString *) scl_stringByRemovingCharacterInSet:(NSCharacterSet *)characterSet;
+- (NSString *) scl_stringByRemovingCharactersInSet:(NSCharacterSet *)characterSet;
 
 @end
