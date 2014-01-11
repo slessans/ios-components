@@ -10,6 +10,26 @@
 
 static const NSInteger DateDayCompareComponents = (NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit);
 
+@implementation NSDateFormatter (SCLComponents)
+
++ (instancetype) localizedDateFormatterWithComponents:(NSString *)dateComponents
+{
+    return [self localizedDateFormatterWithComponents:dateComponents locale:[NSLocale currentLocale]];
+}
+
++ (instancetype) localizedDateFormatterWithComponents:(NSString *)dateComponents locale:(NSLocale *)locale
+{
+    NSString * dateFormat = [NSDateFormatter dateFormatFromTemplate:dateComponents
+                                                            options:0
+                                                             locale:locale];
+    NSDateFormatter * formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:dateFormat];
+    
+    return formatter;
+}
+
+@end
+
 @implementation NSDate (SCLComponents)
 
 + (NSDate *) today

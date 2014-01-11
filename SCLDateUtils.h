@@ -8,6 +8,23 @@
 
 #import <Foundation/Foundation.h>
 
+@interface NSDateFormatter (SCLComponents)
+
+// defaults to current locale (equivalent to calling localizedDateFormatterWithComponents:locale:
+// with [NSLocale currentLocale]
++ (instancetype) localizedDateFormatterWithComponents:(NSString *)dateComponents;
++ (instancetype) localizedDateFormatterWithComponents:(NSString *)dateComponents locale:(NSLocale *)locale;
+
+/*
+ NSString * dateComponents = @"yMMMMdhamm";
+ NSString * dateFormat = [NSDateFormatter dateFormatFromTemplate:dateComponents
+ options:0
+ locale:[NSLocale currentLocale]];
+ NSDateFormatter * formatter = [[NSDateFormatter alloc] init];
+ [formatter setDateFormat:dateFormat];*/
+
+@end
+
 @interface NSDate (SCLComponents)
 
 + (NSDate *) today;
