@@ -8,6 +8,12 @@
 
 #import "UIColor+SCLUtils.h"
 
+#define SCL_COLOR_WITH_INTEGERS(RED, GREEN, BLUE, ALPHA) \
+    [[UIColor alloc] initWithRed:(RED / 255.0f) \
+                           green:(GREEN / 255.0f) \
+                            blue:(BLUE / 255.0f) \
+                           alpha:ALPHA];
+
 @implementation UIColor (SCLUtils)
 
 + (instancetype) scl_colorWithHex:(NSUInteger)hex
@@ -17,10 +23,10 @@
 
 + (instancetype) scl_colorWithHex:(NSUInteger)hex alpha:(CGFloat)alpha
 {
-    return [UIColor scl_colorWithRedInteger:(hex >> 16) & 0xFF
-                               greenInteger:(hex >> 8) & 0xFF
-                                blueInteger:(hex >> 0) & 0xFF
-                                      alpha:alpha];
+    return SCL_COLOR_WITH_INTEGERS(((hex >> 16) & 0xFF),
+                                   ((hex >> 8) & 0xFF),
+                                   ((hex >> 0) & 0xFF),
+                                   alpha);
 }
 
 + (instancetype) scl_colorWithRedInteger:(NSInteger)red
@@ -28,10 +34,8 @@
                              blueInteger:(NSInteger)blue
                                    alpha:(CGFloat)alpha
 {
-    return [[UIColor alloc] initWithRed:(red / 255.0f)
-                                  green:(green / 255.0f)
-                                   blue:(blue / 255.0f)
-                                  alpha:alpha];
+
+    return SCL_COLOR_WITH_INTEGERS(red, green, blue, alpha);
 }
 
 @end
